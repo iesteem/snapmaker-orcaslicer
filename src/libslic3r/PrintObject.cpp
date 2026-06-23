@@ -616,6 +616,9 @@ void PrintObject::detect_overhangs_for_lift()
             {
                 for (size_t layer_id = range.begin(); layer_id < range.end(); ++layer_id) {
                     Layer& layer = *m_layers[layer_id];
+                    if (layer.lower_layer == nullptr) {
+                        continue;
+                    }
                     Layer& lower_layer = *layer.lower_layer;
 
                     ExPolygons overhangs = diff_ex(layer.lslices, offset_ex(lower_layer.lslices, scale_(min_overlap)));
