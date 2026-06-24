@@ -3143,6 +3143,16 @@ void Print::_make_wipe_tower()
 
     // BBS
     const unsigned int number_of_extruders = (unsigned int)(sqrt(flush_matrix.size()) + EPSILON);
+
+    // Safety: if the model references more filaments than the printer's
+    // flush_volumes_matrix supports, wipe tower generation will crash
+    // (ToolOrdering / WipeTower2 internally index wipe_volumes[n] by extruder
+    // ID, and extruder IDs beyond number_of_extruders cause OOB access).
+    // Detect this mismatch and skip wipe tower generation entirely.
+    // Use filament_diameter.size() which reliably reflects the actual
+    // extruder count from the project config.
+    if (number_of_extruders == 0 || m_config.filament_diameter.size() > number_of_extruders)
+        return;
     // Extract purging volumes for each extruder pair:
     std::vector<std::vector<float>> wipe_volumes;
     for (unsigned int i = 0; i<number_of_extruders; ++i)
